@@ -3,10 +3,12 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout, login, authenticate
+from .models import CarMake, CarModel
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+
 from django.views.decorators.csrf import csrf_exempt
 # from .populate import initiate
 
@@ -41,8 +43,18 @@ def logout_request(request):
     # Return a JSON response with an empty username
     data = {"userName": ""}
     return JsonResponse(data)
-
-# Create a `registration` view to handle sign-up request
+# Method to get the list of cars
+def get_cars(request):
+    count = CarMake.objects.filter().count()
+    print(count) # Debugging prints the count of CarMake objects
+    car_models = CarModel.objects.select_related('car_make') # optimized query to fetch related CarMake
+    cars = []
+    for car_model in car_models:
+        cars.append({"CarModel": car_model.name, "CarMake": car_model.car_make.name})   
+    return JsonResponse({"CarModels": cars})
+        
+        
+ # Create a `registration` view to handle sign-up request
 # @csrf_exempt
 # def registration(request):
 #     ...
